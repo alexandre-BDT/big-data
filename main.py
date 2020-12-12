@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import sys
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
@@ -17,14 +18,18 @@ matrix = data_rating.pivot(
     index='movieId', columns='userId', values='rating').fillna(0)
 
 matrix_data = csr_matrix(matrix.values)
+
 model_knn = NearestNeighbors(
     metric='cosine', algorithm='brute', n_neighbors=20, n_jobs=-1)
 model_knn.fit(matrix)
+
 hashmap = {
     movie: i for i, movie in
     enumerate(list(data_movies.set_index(
         'movieId').loc[matrix.index].title))
 }
+
+print(data_movies.head())
 
 
 def get_recommendation(title):
@@ -37,7 +42,16 @@ def get_recommendation(title):
     for i, (idx, dist) in enumerate(raw_recommends):
         print('{0}: {1}, with distance of {2}'.format(
             i+1, reverse_mapper[idx], dist))
+    print("\n")
     return index
 
 
-get_recommendation("Inception (2010)")
+# get_recommendation("Inception (2010)")
+
+while (1):
+    print('Enter a movie:')
+    movie = sys.stdin.readline()
+    if movie:
+        get_recommendation(movie.rstrip("\n"))
+    else:
+        sys.exit(0)
