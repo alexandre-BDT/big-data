@@ -42,7 +42,6 @@ def fuzzy_map(title):
 
 
 def get_recommendation(title):
-    # index = hashmap[title]
     index = fuzzy_map(title)
     distances, indices = model_knn.kneighbors(
         matrix.iloc[index].values.reshape(1, -1), n_neighbors=10)
@@ -57,8 +56,9 @@ def get_recommendation(title):
 
 
 while (1):
-    print('Enter a movie:')
+    print('\nEnter a movie:\n')
     movie = sys.stdin.readline()
+    print("\n")
     if movie:
         get_recommendation(movie.rstrip("\n"))
     else:
