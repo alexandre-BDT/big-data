@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
+from fuzzywuzzy import fuzz
 
 data_path = "./data_set"
 movies_name = data_path + "/movies.csv"
@@ -29,11 +30,20 @@ hashmap = {
         'movieId').loc[matrix.index].title))
 }
 
-print(data_movies.head())
+
+def fuzzy_map(title):
+    res = []
+    for movie, index in hashmap.items():
+        ratio = fuzz.ratio(movie.lower(), title.lower())
+        if ratio >= 60:
+            res.append((movie, index, ratio))
+    res = sorted(res, key=lambda x: x[2])[::-1]
+    return res[0][1]
 
 
 def get_recommendation(title):
-    index = hashmap[title]
+    # index = hashmap[title]
+    index = fuzzy_map(title)
     distances, indices = model_knn.kneighbors(
         matrix.iloc[index].values.reshape(1, -1), n_neighbors=10)
     raw_recommends = sorted(list(zip(indices.squeeze().tolist(
@@ -45,8 +55,6 @@ def get_recommendation(title):
     print("\n")
     return index
 
-
-# get_recommendation("Inception (2010)")
 
 while (1):
     print('Enter a movie:')
